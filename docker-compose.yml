@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  # Frontend React application
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: socialecho-client
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://localhost:4000
+    depends_on:
+      - app
+    networks:
+      - socialecho-network
+
+  # Node.js backend application
+  app:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: socialecho-server
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    environment:
+      - CLIENT_URL=http://localhost:3000
+      - MONGODB_URI=mongodb://mongo:27017/db_socialecho
+      - PORT=4000
+      - SECRET=your_secret_key_here
+      - REFRESH_SECRET=your_refresh_secret_key_here
+      - CRYPTO_KEY=your_crypto_key_here
+      # Add other environment variables as needed
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+    depends_on:
+      - mongo
+    networks:
+      - socialecho-network
+
+  # MongoDB service
+  mongo:
+    image: mongo:latest
+    container_name: socialecho-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - socialecho-network
+
+# Define networks
+networks:
+  socialecho-network:
+    driver: bridge
+
+# Define volumes
+volumes:
+  mongo-data:
+    driver: local
