@@ -30,8 +30,8 @@ jobs:
                 file: ./client/Dockerfile
                 push: true
                 tags: |
-                    ${{ secrets.DOCKERHUB_USERNAME }}/socialecho-frontend:latest
-                    ${{ secrets.DOCKERHUB_USERNAME }}/socialecho-frontend:${{ github.sha }}
+                    ${{ secrets.DOCKER_HUB_USERNAME }}/socialecho-frontend:latest
+                    ${{ secrets.DOCKER_HUB_USERNAME }}/socialecho-frontend:${{ github.sha }}
             - name: Build and push Backend
               uses: docker/build-push-action@v5
               with:
@@ -39,8 +39,8 @@ jobs:
                 file: ./server/Dockerfile
                 push: true
                 tags: |
-                    ${{ secrets.DOCKERHUB_USERNAME }}/socialecho-backend:latest
-                    ${{ secrets.DOCKERHUB_USERNAME }}/socialecho-backend:${{ github.sha }}
+                    ${{ secrets.DOCKER_HUB_USERNAME }}/socialecho-backend:latest
+                    ${{ secrets.DOCKER_HUB_USERNAME }}/socialecho-backend:${{ github.sha }}
             - name: Configure kubectl
               run: |
                 mkdir -p ~/.kube
@@ -50,7 +50,7 @@ jobs:
       
             - name: Update and deploy K8s manifests
               run: |
-                 sed -i "s|DOCKERHUB_USERNAME|${{ secrets.DOCKERHUB_USERNAME }}|g" k8s/*.yaml
+                 sed -i "s|DOCKERHUB_USERNAME|${{ secrets.DOCKER_HUB_USERNAME }}|g" k8s/*.yaml
                  sed -i "s|IMAGE_TAG|${{ github.sha }}|g" k8s/*.yaml
                  kubectl apply -f k8s/
                  kubectl rollout status deployment/socialecho-frontend --timeout=300s
